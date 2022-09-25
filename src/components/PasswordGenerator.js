@@ -4,15 +4,14 @@ import "./PasswordGeneratorStyle.css";
 const PasswordGenerator = (props) => {
   const [includeLetters, setIncludeLetters] = useState(true);
   const [includeNumbers, setIncludeNumbers] = useState(true);
-  const [includeSpecialChar, setIncludeSpecialChar] = useState(false);
-  const [includeCapitalLetters, setIncludeCapitalLetters] = useState(false);
+  const [includeSpecialChar, setIncludeSpecialChar] = useState(true);
+  const [includeCapitalLetters, setIncludeCapitalLetters] = useState(true);
   const [excludeDuplicateChar, setExcludeDuplicateChar] = useState(false);
   const [excludeSimilarChar, setExcludeSimilarChar] = useState(false);
-  const [passwordLength, setPasswordLength] = useState(8);
+  const [passwordLength, setPasswordLength] = useState(15);
   const [passwordEntropy, setPasswordEntropy] = useState(0);
   const [passwordStrengthLabel, setPasswordStrengthLabel] = useState("weak");
   const [password, setPassword] = useState("");
-
 
   const RandomPasswordGenerator = () => {
     const randomFunc = {
@@ -31,7 +30,6 @@ const PasswordGenerator = (props) => {
       },
     };
 
-
     let generatedPassword = "";
 
     const typesCount =
@@ -39,7 +37,7 @@ const PasswordGenerator = (props) => {
       includeCapitalLetters +
       includeNumbers +
       includeSpecialChar;
-    
+
     const typesArr = [
       { includeLetters },
       { includeCapitalLetters },
@@ -50,7 +48,7 @@ const PasswordGenerator = (props) => {
     if (typesCount === 0) {
       return "";
     }
-    
+
     let allowedTypesArray = [];
     typesArr.forEach((type) => {
       allowedTypesArray.push(Object.keys(type)[0]);
@@ -66,12 +64,11 @@ const PasswordGenerator = (props) => {
       }
       generatedPassword += charToAdd;
     }
-    console.log(generatedPassword);
-    return generatedPassword
-      .slice(0, passwordLength)
-      .split("")
-      .sort(() => Math.random() - 0.5)
-      .join("");
+
+    return generatedPassword.slice(0, passwordLength);
+    // .split("")
+    // .sort(() => Math.random() - 0.5)
+    // .join("");
   };
 
   const calcEntropy = (passwordLength) => {
@@ -81,7 +78,6 @@ const PasswordGenerator = (props) => {
     );
     setPasswordEntropy(entropy);
   };
-
 
   const passwordStrength = (passwordEntropy) => {
     if (passwordEntropy <= 60) setPasswordStrengthLabel("Very Weak");
@@ -95,61 +91,143 @@ const PasswordGenerator = (props) => {
 
   useEffect(() => {
     calcEntropy(password.length);
+    // console.log(document.getElementById("uppercase").checked);
+    // console.log(document.getElementById("lowercase").checked);
+    // console.log(document.getElementById("numbers").checked);
+    // console.log(document.getElementById("symbols").checked);
+    // console.log(
+    //   includeCapitalLetters,
+    //   includeLetters,
+    //   includeNumbers,
+    //   includeSpecialChar
+    // );
   }, [password]);
 
   useEffect(() => {
     passwordStrength(passwordEntropy);
   }, [passwordEntropy]);
 
+  //handle toggles
+  const onChangeIncludeCapitalLetters = (e) => {
+    setIncludeCapitalLetters(document.getElementById("uppercase").checked);
+    disableOnlyCheckbox();
+  };
+  const onChangeIncludeLetters = (e) => {
+    setIncludeLetters(document.getElementById("lowercase").checked);
+    disableOnlyCheckbox();
+  };
+  const onChangeIncludeNumbers = (e) => {
+    setIncludeNumbers(document.getElementById("numbers").checked);
+    disableOnlyCheckbox();
+  };
+  const onChangeIncludeSpecialChar = (e) => {
+    setIncludeSpecialChar(document.getElementById("symbols").checked);
+    disableOnlyCheckbox();
+  };
+
+  // function that handles the checkboxes state, so at least one needs
+  //to be selected.The last checkbox will be disabled.
+  const disableOnlyCheckbox = () => {
+    const uppercase = document.getElementById("uppercase");
+    const lowercase = document.getElementById("lowercase");
+    const number = document.getElementById("numbers");
+    const symbol = document.getElementById("symbols");
+    // console.log([uppercase, lowercase, number, symbol]);
+    const totalChecked = [uppercase, lowercase, number, symbol].filter(
+      (el) => el.checked
+    );
+    totalChecked.forEach((el) => {
+      if (totalChecked.length === 1) {
+        el.disabled = true;
+      } else {
+        el.disabled = false;
+      }
+    });
+  };
+
   const generatePassword = async (e) => {
     const generatedPassword = RandomPasswordGenerator();
     console.log(generatedPassword);
     setPassword(generatedPassword);
-    const resultEl = document.getElementById("result");
-    resultEl.innerText = generatedPassword;
+    // const resultEl = document.getElementById("result");
+    document.getElementById("result").innerText = generatedPassword;
     navigator.clipboard.writeText(generatedPassword);
-
-    document.getElementById("custom-tooltip").style.display = "inline";
-    setTimeout(function () {
-      document.getElementById("custom-tooltip").style.display = "none";
-    }, 5000);
+    const copyInfo = document.querySelector(".info.right");
+    copyInfo.style.transform = "translateY(0%)";
+    copyInfo.style.opacity = "0.75";
   };
 
   return (
-    <div class="container">
-      <h2>Password Generator</h2>
-      <div class="result-container">
-        <span id="result">Click Generate</span>
-        {/* <input type="text" name="password" id="passwords" value={password} /> */}
-        <button class="btn" id="clipboard"></button>
+    <div className="container">
+      <h2 className="title">Password Generator</h2>
+      <div className="result">
+        <div className="info right">click to copy</div>
+        <div className="info left">copied</div>
+        <div className="viewbox" id="result">
+          CLICK GENERATE
+        </div>
+        {/* <button id="copy-btn" style="--x: 0; --y: 0">
+          <i className="far fa-copy"></i>
+        </button> */}
       </div>
-      <div class="settings">
-        <div class="setting">
+      <div className="settings">
+        <div className="setting">
           <label>Password Length</label>
-          <input type="number" id="length" min="8" max="20" value="25" />
+          <input
+            type="number"
+            id="length"
+            min="8"
+            value={passwordLength}
+            onChange={(e) => {setPasswordLength(e.target.value)}}
+            max="25"
+          />
         </div>
-        <div class="setting">
-          <label>Include uppercase letters</label>
-          <input type="checkbox" id="uppercase" checked />
+        <div className="setting">
+          <label>Use Capital letters</label>
+          <input
+            type="checkbox"
+            id="uppercase"
+            value={includeCapitalLetters}
+            checked={includeCapitalLetters}
+            onChange={onChangeIncludeCapitalLetters}
+          />
         </div>
-        <div class="setting">
-          <label>Include lowercase letters</label>
-          <input type="checkbox" id="lowercase" checked />
+        <div className="setting">
+          <label>Use letters</label>
+          <input
+            type="checkbox"
+            id="lowercase"
+            value={includeLetters}
+            checked={includeLetters}
+            onChange={onChangeIncludeLetters}
+          />
         </div>
-        <div class="setting">
-          <label>Include numbers</label>
-          <input type="checkbox" id="numbers" checked />
+        <div className="setting">
+          <label>Use numbers</label>
+          <input
+            type="checkbox"
+            id="numbers"
+            value={includeNumbers}
+            onChange={onChangeIncludeNumbers}
+            checked={includeNumbers}
+          />
         </div>
-        <div class="setting">
-          <label>Include symbols</label>
-          <input type="checkbox" id="symbols" checked />
+        <div className="setting">
+          <label>Use Special Characters</label>
+          <input
+            type="checkbox"
+            id="symbols"
+            onChange={onChangeIncludeSpecialChar}
+            value={includeSpecialChar}
+            checked={includeSpecialChar}
+          />
         </div>
       </div>
       <input
         type="button"
         className="btn btn-dark btn-lg"
         value="Generate"
-        onClick={(e) => generatePassword(e)}
+        onClick={generatePassword}
       />
     </div>
   );
