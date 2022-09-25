@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,16 +7,13 @@ import {
 } from "react-router-dom";
 import PasswordGenerator from "./components/PasswordGenerator";
 
-
 function App() {
   return (
     <Router>
-      <div className='container'>
-        <Routes>
-          <Route path="/" element={<PasswordGenerator />} />
-          <Route path="*" element={<Navigate to="/"/>} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<PasswordGenerator />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     </Router>
   );
 }

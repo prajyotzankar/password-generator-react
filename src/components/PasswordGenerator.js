@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./PasswordGeneratorStyle.css";
 
 const PasswordGenerator = (props) => {
+  console.clear();
   const [includeLetters, setIncludeLetters] = useState(true);
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSpecialChar, setIncludeSpecialChar] = useState(true);
@@ -66,9 +67,6 @@ const PasswordGenerator = (props) => {
     }
 
     return generatedPassword.slice(0, passwordLength);
-    // .split("")
-    // .sort(() => Math.random() - 0.5)
-    // .join("");
   };
 
   const calcEntropy = (passwordLength) => {
@@ -125,6 +123,27 @@ const PasswordGenerator = (props) => {
     disableOnlyCheckbox();
   };
 
+  const onChangePasswordLength = (e) => {
+    setPasswordLength(e.target.value);
+    document.getElementById("passwordLengthSpan").innerHTML =
+      "Password Length: " + e.target.value;
+    console.log(document.getElementById("range").value);
+
+    //dual tone on sliding bar
+    const slider = document.getElementById("range");
+    const sliderProps = {
+      fill: "#3FA4F4",
+      background: "rgba(255, 255, 255, 0.214)",
+    };
+    
+    const percentage =
+      (100 * (e.target.value - slider.min)) / (slider.max - slider.min);
+    const bg = `linear-gradient(90deg, ${sliderProps.fill} ${percentage}%, ${
+      sliderProps.background
+    } ${percentage + 0.1}%)`;
+    slider.style.background = bg;
+  };
+
   // function that handles the checkboxes state, so at least one needs
   //to be selected.The last checkbox will be disabled.
   const disableOnlyCheckbox = () => {
@@ -132,7 +151,6 @@ const PasswordGenerator = (props) => {
     const lowercase = document.getElementById("lowercase");
     const number = document.getElementById("numbers");
     const symbol = document.getElementById("symbols");
-    // console.log([uppercase, lowercase, number, symbol]);
     const totalChecked = [uppercase, lowercase, number, symbol].filter(
       (el) => el.checked
     );
@@ -145,43 +163,65 @@ const PasswordGenerator = (props) => {
     });
   };
 
+  const copyToClipboard = (e) => {
+    navigator.clipboard.writeText(password);
+
+    const copyInfo = document.querySelector(".info.right");
+    copyInfo.style.transform = "translateY(200%)";
+    copyInfo.style.opacity = "0";
+
+    const copiedInfo = document.querySelector(".info.left");
+    copiedInfo.style.transform = "translateY(0%)";
+    copiedInfo.style.opacity = "0.75";
+  };
+
   const generatePassword = async (e) => {
     const generatedPassword = RandomPasswordGenerator();
     console.log(generatedPassword);
     setPassword(generatedPassword);
-    // const resultEl = document.getElementById("result");
     document.getElementById("result").innerText = generatedPassword;
-    navigator.clipboard.writeText(generatedPassword);
+
     const copyInfo = document.querySelector(".info.right");
     copyInfo.style.transform = "translateY(0%)";
     copyInfo.style.opacity = "0.75";
+
+    const copiedInfo = document.querySelector(".info.left");
+    copiedInfo.style.transform = "translateY(200%)";
+    copiedInfo.style.opacity = "0";
   };
 
   return (
     <div className="container">
       <h2 className="title">Password Generator</h2>
       <div className="result">
-        <div className="info right">click to copy</div>
+        <div className="info right" onClick={copyToClipboard}>
+          click to copy
+        </div>
         <div className="info left">copied</div>
         <div className="viewbox" id="result">
           CLICK GENERATE
         </div>
-        {/* <button id="copy-btn" style="--x: 0; --y: 0">
-          <i className="far fa-copy"></i>
-        </button> */}
       </div>
-      <div className="settings">
-        <div className="setting">
-          <label>Password Length</label>
+      <div style={{ padding: "0 10px", margin: "15px 0 0 0" }}>
+        <span id="passwordLengthSpan" className="field-title">
+          Password Length: 15
+        </span>
+        <div className="password-length">
+          <b>8</b>
           <input
-            type="number"
-            id="length"
-            min="8"
+            id="range"
+            className="range"
+            type="range"
             value={passwordLength}
-            onChange={(e) => {setPasswordLength(e.target.value)}}
+            onChange={onChangePasswordLength}
+            min="8"
             max="25"
           />
+          <b>25</b>
         </div>
+      </div>
+      <div className="settings">
+        <span className="field-title">Settings</span>
         <div className="setting">
           <label>Use Capital letters</label>
           <input
@@ -225,7 +265,7 @@ const PasswordGenerator = (props) => {
       </div>
       <input
         type="button"
-        className="btn btn-dark btn-lg"
+        className="btn generate"
         value="Generate"
         onClick={generatePassword}
       />
