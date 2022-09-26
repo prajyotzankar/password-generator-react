@@ -13,6 +13,7 @@ const PasswordGenerator = (props) => {
   const [passwordEntropy, setPasswordEntropy] = useState(0);
   const [passwordStrengthLabel, setPasswordStrengthLabel] = useState("weak");
   const [password, setPassword] = useState("");
+  const [passwordHistory, setPasswordHistory] = useState({});
 
   const RandomPasswordGenerator = () => {
     const randomFunc = {
@@ -88,18 +89,8 @@ const PasswordGenerator = (props) => {
   };
 
   useEffect(() => {
-    calcEntropy(password.length);
-    // console.log(document.getElementById("uppercase").checked);
-    // console.log(document.getElementById("lowercase").checked);
-    // console.log(document.getElementById("numbers").checked);
-    // console.log(document.getElementById("symbols").checked);
-    // console.log(
-    //   includeCapitalLetters,
-    //   includeLetters,
-    //   includeNumbers,
-    //   includeSpecialChar
-    // );
-  }, [password]);
+    calcEntropy(passwordLength);
+  }, [passwordLength]);
 
   useEffect(() => {
     passwordStrength(passwordEntropy);
@@ -122,10 +113,18 @@ const PasswordGenerator = (props) => {
     setIncludeSpecialChar(document.getElementById("symbols").checked);
     disableOnlyCheckbox();
   };
+  const onChangeExcludeDuplicateChar = (e) => {
+    setExcludeDuplicateChar(document.getElementById("duplicateChar").checked);
+    disableOnlyCheckbox();
+  };
+  const onChangeExcludeSimilarChar = (e) => {
+    setExcludeSimilarChar(document.getElementById("similarChar").checked);
+    disableOnlyCheckbox();
+  };
 
   const onChangePasswordLength = (e) => {
     setPasswordLength(e.target.value);
-    document.getElementById("passwordLengthSpan").innerHTML =
+    document.getElementById("password-length-span").innerHTML =
       "Password Length: " + e.target.value;
     console.log(document.getElementById("range").value);
 
@@ -135,7 +134,7 @@ const PasswordGenerator = (props) => {
       fill: "#3FA4F4",
       background: "rgba(255, 255, 255, 0.214)",
     };
-    
+
     const percentage =
       (100 * (e.target.value - slider.min)) / (slider.max - slider.min);
     const bg = `linear-gradient(90deg, ${sliderProps.fill} ${percentage}%, ${
@@ -163,17 +162,34 @@ const PasswordGenerator = (props) => {
     });
   };
 
-  const copyToClipboard = (e) => {
-    navigator.clipboard.writeText(password);
+  const copyToClipboard = (item) => {
+    if (!item) {
+      navigator.clipboard.writeText(password);
 
-    const copyInfo = document.querySelector(".info.right");
-    copyInfo.style.transform = "translateY(200%)";
-    copyInfo.style.opacity = "0";
+      const copyInfo = document.querySelector(".info.right");
+      copyInfo.style.transform = "translateY(200%)";
+      copyInfo.style.opacity = "0";
 
-    const copiedInfo = document.querySelector(".info.left");
-    copiedInfo.style.transform = "translateY(0%)";
-    copiedInfo.style.opacity = "0.75";
+      const copiedInfo = document.querySelector(".info.left");
+      copiedInfo.style.transform = "translateY(0%)";
+      copiedInfo.style.opacity = "0.75";
+    } else {
+      navigator.clipboard.writeText(item);
+    }
   };
+
+  const showOrHide = (item) => {
+    var passwordHistoryCopy = passwordHistory;
+    passwordHistoryCopy[item] = (passwordHistory[item] === "show") ? "hide" : "show";
+    console.log(passwordHistoryCopy, passwordHistory);
+    setPasswordHistory({...passwordHistoryCopy});
+  };
+
+  const deleteItem = (item) => {
+    var passwordHistoryCopy = passwordHistory;
+    delete passwordHistoryCopy[item];
+    setPasswordHistory({ ...passwordHistoryCopy });
+  }
 
   const generatePassword = async (e) => {
     const generatedPassword = RandomPasswordGenerator();
@@ -181,6 +197,15 @@ const PasswordGenerator = (props) => {
     setPassword(generatedPassword);
     document.getElementById("result").innerText = generatedPassword;
 
+    //Update Password history
+    // const list = passwordHistory.passwordList.push(generatePassword);
+    // console.log(list);
+    setPasswordHistory({
+      ...passwordHistory,
+      [generatedPassword]: "hide",
+    });
+
+    //Tooltips for copy action and copied
     const copyInfo = document.querySelector(".info.right");
     copyInfo.style.transform = "translateY(0%)";
     copyInfo.style.opacity = "0.75";
@@ -192,83 +217,150 @@ const PasswordGenerator = (props) => {
 
   return (
     <div className="container">
-      <h2 className="title">Password Generator</h2>
-      <div className="result">
-        <div className="info right" onClick={copyToClipboard}>
-          click to copy
+      <div className="password">
+        <h2 className="title">Password Generator</h2>
+        <div className="gen-password">
+          <div className="result">
+            <div className="info right" onClick={() => copyToClipboard()}>
+              click to copy
+            </div>
+            <div className="info left">copied</div>
+            <div className="viewbox" id="result">
+              CLICK GENERATE
+            </div>
+          </div>
+          <div>
+            <input
+              type="button"
+              className="btn generate"
+              value="Generate"
+              onClick={generatePassword}
+            />
+          </div>
         </div>
-        <div className="info left">copied</div>
-        <div className="viewbox" id="result">
-          CLICK GENERATE
+        <div className="password-info">
+          {/* <div */}
+          <span id="password-length-span" className="field-title">
+            Password Length: 15
+          </span>
+          <span id="password-entropy-span" className="field-title entropy">
+            Entropy: {passwordEntropy}
+          </span>
+          <span
+            id="password-strengthLabel-span"
+            className="field-title strengthLabel"
+          >
+            Strength: {passwordStrengthLabel}
+          </span>
+          <div className="password-length-slider">
+            <b>8</b>
+            <input
+              id="range"
+              className="range"
+              type="range"
+              value={passwordLength}
+              onChange={onChangePasswordLength}
+              min="8"
+              max="25"
+            />
+            <b>25</b>
+          </div>
+        </div>
+        <div className="settings">
+          <span className="field-title">Settings</span>
+          <div className="setting">
+            <label>Use Capital letters</label>
+            <input
+              type="checkbox"
+              id="uppercase"
+              value={includeCapitalLetters}
+              checked={includeCapitalLetters}
+              onChange={onChangeIncludeCapitalLetters}
+            />
+          </div>
+          <div className="setting">
+            <label>Use letters</label>
+            <input
+              type="checkbox"
+              id="lowercase"
+              value={includeLetters}
+              checked={includeLetters}
+              onChange={onChangeIncludeLetters}
+            />
+          </div>
+          <div className="setting">
+            <label>Use numbers</label>
+            <input
+              type="checkbox"
+              id="numbers"
+              value={includeNumbers}
+              onChange={onChangeIncludeNumbers}
+              checked={includeNumbers}
+            />
+          </div>
+          <div className="setting">
+            <label>Use Special Characters</label>
+            <input
+              type="checkbox"
+              id="symbols"
+              onChange={onChangeIncludeSpecialChar}
+              value={includeSpecialChar}
+              checked={includeSpecialChar}
+            />
+          </div>
+          <div className="setting">
+            <label>Exclude Duplicate Characters</label>
+            <input
+              type="checkbox"
+              id="duplicateChar"
+              onChange={onChangeExcludeDuplicateChar}
+              value={excludeDuplicateChar}
+              checked={excludeDuplicateChar}
+            />
+          </div>
+          <div className="setting">
+            <label>Exclude Similar Characters</label>
+            <input
+              type="checkbox"
+              id="similarChar"
+              onChange={onChangeExcludeSimilarChar}
+              value={excludeSimilarChar}
+              checked={excludeSimilarChar}
+            />
+          </div>
         </div>
       </div>
-      <div style={{ padding: "0 10px", margin: "15px 0 0 0" }}>
-        <span id="passwordLengthSpan" className="field-title">
-          Password Length: 15
-        </span>
-        <div className="password-length">
-          <b>8</b>
-          <input
-            id="range"
-            className="range"
-            type="range"
-            value={passwordLength}
-            onChange={onChangePasswordLength}
-            min="8"
-            max="25"
-          />
-          <b>25</b>
-        </div>
+      <div className="password-history">
+        <h2 className="title">Password History</h2>
+        {/* {console.log(passwordHistory)}
+        {Object.entries(passwordHistory).map(
+          ([key, value]) => `${key} ${value} `
+        )} */}
+        <table>
+          <tbody>
+            {Object.entries(passwordHistory).map(([key, value]) => (
+              <tr key={key}>
+                <td className="td-password">{value === "show" ? key : "*********"}</td>
+                <td
+                  className={value}
+                  onClick={() => showOrHide(key)}>
+        
+                </td>
+                <td
+                  className="emoji-clipboard"
+                  onClick={() => copyToClipboard(key)}
+                >
+                </td>
+                <td
+                  className="emoji-dustbin"
+                  onClick={() => deleteItem(key)}
+                >
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <div className="settings">
-        <span className="field-title">Settings</span>
-        <div className="setting">
-          <label>Use Capital letters</label>
-          <input
-            type="checkbox"
-            id="uppercase"
-            value={includeCapitalLetters}
-            checked={includeCapitalLetters}
-            onChange={onChangeIncludeCapitalLetters}
-          />
-        </div>
-        <div className="setting">
-          <label>Use letters</label>
-          <input
-            type="checkbox"
-            id="lowercase"
-            value={includeLetters}
-            checked={includeLetters}
-            onChange={onChangeIncludeLetters}
-          />
-        </div>
-        <div className="setting">
-          <label>Use numbers</label>
-          <input
-            type="checkbox"
-            id="numbers"
-            value={includeNumbers}
-            onChange={onChangeIncludeNumbers}
-            checked={includeNumbers}
-          />
-        </div>
-        <div className="setting">
-          <label>Use Special Characters</label>
-          <input
-            type="checkbox"
-            id="symbols"
-            onChange={onChangeIncludeSpecialChar}
-            value={includeSpecialChar}
-            checked={includeSpecialChar}
-          />
-        </div>
-      </div>
-      <input
-        type="button"
-        className="btn generate"
-        value="Generate"
-        onClick={generatePassword}
-      />
     </div>
   );
 };
