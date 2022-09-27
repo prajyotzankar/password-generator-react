@@ -6,9 +6,9 @@
 <img src="https://img.shields.io/badge/netlify-%23000000.svg?style=for-the-badge&logo=netlify&logoColor=#00C7B7">
 </p>
 
-> The app can be used to generate pseudo-random password using parameter like password length,
-include letters, capital letters, number, special characters and exclude duplicates. Features 
-Copy to Clipboard action and Histroy panel for generated passwords.
+> The app can generate pseudo-random passwords using parameters like password length, including letters, 
+capital letters, numbers, special characters, and exclude duplicates. Features Copy to Clipboard action 
+and History panel for generated passwords.
 
 
 ## clone or download
