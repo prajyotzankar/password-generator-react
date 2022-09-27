@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import "./PasswordGeneratorStyle.css";
 
 const PasswordGenerator = (props) => {
-  console.clear();
+  // console.clear();
   const [includeLetters, setIncludeLetters] = useState(true);
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSpecialChar, setIncludeSpecialChar] = useState(true);
   const [includeCapitalLetters, setIncludeCapitalLetters] = useState(true);
   const [excludeDuplicateChar, setExcludeDuplicateChar] = useState(false);
-  const [excludeSimilarChar, setExcludeSimilarChar] = useState(false);
+  // const [excludeSimilarChar, setExcludeSimilarChar] = useState(false);
   const [passwordLength, setPasswordLength] = useState(15);
   const [passwordEntropy, setPasswordEntropy] = useState(0);
   const [passwordStrengthLabel, setPasswordStrengthLabel] = useState("weak");
@@ -52,21 +52,28 @@ const PasswordGenerator = (props) => {
     }
 
     let allowedTypesArray = [];
+    let allowedPattern = [];
     typesArr.forEach((type) => {
       allowedTypesArray.push(Object.keys(type)[0]);
+      allowedPattern[Object.keys(type)[0]] = false;
     });
 
-    generatedPassword = "";
-    while (passwordLength > generatedPassword.length) {
-      const funcName =
-        allowedTypesArray[Math.floor(Math.random() * allowedTypesArray.length)];
-      let charToAdd = randomFunc[funcName]();
-      if (excludeDuplicateChar) {
-        if (generatedPassword.includes(charToAdd)) charToAdd = "";
+    while (!Object.values(allowedPattern).every(Boolean)) {
+      generatedPassword = "";
+      while (passwordLength > generatedPassword.length) {
+        const funcName =
+          allowedTypesArray[
+            Math.floor(Math.random() * allowedTypesArray.length)
+          ];
+        let charToAdd = randomFunc[funcName]();
+        if (excludeDuplicateChar) {
+          if (generatedPassword.includes(charToAdd)) charToAdd = "";
+        }
+        generatedPassword += charToAdd;
+        if (charToAdd !== "" && !allowedPattern[funcName])
+          allowedPattern[funcName] = true;
       }
-      generatedPassword += charToAdd;
     }
-
     return generatedPassword.slice(0, passwordLength);
   };
 
@@ -117,16 +124,15 @@ const PasswordGenerator = (props) => {
     setExcludeDuplicateChar(document.getElementById("duplicateChar").checked);
     disableOnlyCheckbox();
   };
-  const onChangeExcludeSimilarChar = (e) => {
-    setExcludeSimilarChar(document.getElementById("similarChar").checked);
-    disableOnlyCheckbox();
-  };
+  // const onChangeExcludeSimilarChar = (e) => {
+  //   setExcludeSimilarChar(document.getElementById("similarChar").checked);
+  //   disableOnlyCheckbox();
+  // };
 
   const onChangePasswordLength = (e) => {
     setPasswordLength(e.target.value);
     document.getElementById("password-length-span").innerHTML =
       "Password Length: " + e.target.value;
-    console.log(document.getElementById("range").value);
 
     //dual tone on sliding bar
     const slider = document.getElementById("range");
@@ -153,11 +159,17 @@ const PasswordGenerator = (props) => {
     const totalChecked = [uppercase, lowercase, number, symbol].filter(
       (el) => el.checked
     );
+
     totalChecked.forEach((el) => {
       if (totalChecked.length === 1) {
+        if (el.id === "numbers" || el.id === "symbols") {
+          setExcludeDuplicateChar(false);
+          document.getElementById("duplicateChar").disabled = true;
+        }
         el.disabled = true;
       } else {
         el.disabled = false;
+        document.getElementById("duplicateChar").disabled = false;
       }
     });
   };
@@ -180,26 +192,23 @@ const PasswordGenerator = (props) => {
 
   const showOrHide = (item) => {
     var passwordHistoryCopy = passwordHistory;
-    passwordHistoryCopy[item] = (passwordHistory[item] === "show") ? "hide" : "show";
-    console.log(passwordHistoryCopy, passwordHistory);
-    setPasswordHistory({...passwordHistoryCopy});
+    passwordHistoryCopy[item] =
+      passwordHistory[item] === "show" ? "hide" : "show";
+    setPasswordHistory({ ...passwordHistoryCopy });
   };
 
   const deleteItem = (item) => {
     var passwordHistoryCopy = passwordHistory;
     delete passwordHistoryCopy[item];
     setPasswordHistory({ ...passwordHistoryCopy });
-  }
+  };
 
   const generatePassword = async (e) => {
     const generatedPassword = RandomPasswordGenerator();
-    console.log(generatedPassword);
+    // console.log(generatedPassword);
     setPassword(generatedPassword);
     document.getElementById("result").innerText = generatedPassword;
 
-    //Update Password history
-    // const list = passwordHistory.passwordList.push(generatePassword);
-    // console.log(list);
     setPasswordHistory({
       ...passwordHistory,
       [generatedPassword]: "hide",
@@ -318,7 +327,7 @@ const PasswordGenerator = (props) => {
               checked={excludeDuplicateChar}
             />
           </div>
-          <div className="setting">
+          {/* <div className="setting">
             <label>Exclude Similar Characters</label>
             <input
               type="checkbox"
@@ -327,35 +336,43 @@ const PasswordGenerator = (props) => {
               value={excludeSimilarChar}
               checked={excludeSimilarChar}
             />
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="password-history">
         <h2 className="title">Password History</h2>
-        {/* {console.log(passwordHistory)}
-        {Object.entries(passwordHistory).map(
-          ([key, value]) => `${key} ${value} `
-        )} */}
+        {Object.keys(passwordHistory).length !== 0 && (
+          <span className="tooltip" data-tooltip="Delete All History">
+            <b
+              className="emoji-dustbin"
+              onClick={() => {
+                setPasswordHistory({});
+              }}
+            ></b>
+          </span>
+        )}
         <table>
           <tbody>
             {Object.entries(passwordHistory).map(([key, value]) => (
               <tr key={key}>
-                <td className="td-password">{value === "show" ? key : "*********"}</td>
-                <td
-                  className={value}
-                  onClick={() => showOrHide(key)}>
-        
+                <td className="td-password">
+                  {value === "show" ? key : "*********"}
                 </td>
-                <td
-                  className="emoji-clipboard"
-                  onClick={() => copyToClipboard(key)}
-                >
-                </td>
-                <td
-                  className="emoji-dustbin"
-                  onClick={() => deleteItem(key)}
-                >
-                </td>
+                <span className="tooltip" data-tooltip="Show/Hide">
+                  <td className={value} onClick={() => showOrHide(key)}></td>
+                </span>
+                <span className="tooltip" data-tooltip="Click to Copy">
+                  <td
+                    className="emoji-clipboard"
+                    onClick={() => copyToClipboard(key)}
+                  ></td>
+                </span>
+                <span className="tooltip" data-tooltip="Delete">
+                  <td
+                    className="emoji-dustbin"
+                    onClick={() => deleteItem(key)}
+                  ></td>
+                </span>
               </tr>
             ))}
           </tbody>
