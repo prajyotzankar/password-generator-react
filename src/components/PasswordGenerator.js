@@ -257,7 +257,7 @@ const PasswordGenerator = (props) => {
           </span>
           <span
             id="password-strengthLabel-span"
-            className="field-title strengthLabel"
+            className="field-title strength-label"
           >
             Strength: {passwordStrengthLabel}
           </span>
