@@ -21,6 +21,9 @@ $ git clone https://github.com/prajyotzankar/password-generator-react.git
 ### Netlify deploy status
 [![Netlify Status](https://api.netlify.com/api/v1/badges/7e358fae-f291-445c-a51b-295b4d1d3e65/deploy-status)](https://app.netlify.com/sites/passwordnest/deploys)
 
+#### Super-Linter Status
+[![GitHub Super-Linter](https://github.com/prajyotzankar//password-generator-react/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+
 ## Client-side usage(PORT: 3000)
 
 ```terminal
@@ -35,6 +38,7 @@ $ npm run start // this will run the files in docs, this behavior is exactly the
 
 # Screenshots of this project
 [![Screenshot-2022-09-27-155202.jpg](https://i.postimg.cc/BZznfr9G/Screenshot-2022-09-27-155202.jpg)](https://passwordnest.netlify.app/)
+[![passwordnest-mobile-ss.jpg](https://i.postimg.cc/7YQD59xF/passwordnest-mobile-ss.jpg)](https://postimg.cc/crYPjQth)
 
 ## Standard
 
