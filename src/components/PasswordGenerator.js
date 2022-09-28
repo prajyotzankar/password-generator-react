@@ -1,327 +1,322 @@
-import React, { useState, useEffect } from "react";
-import "./PasswordGeneratorStyle.css";
+import React, { useState, useEffect } from 'react'
+import './PasswordGeneratorStyle.css'
 
 const PasswordGenerator = (props) => {
   // console.clear();
-  const [includeLetters, setIncludeLetters] = useState(true);
-  const [includeNumbers, setIncludeNumbers] = useState(true);
-  const [includeSpecialChar, setIncludeSpecialChar] = useState(true);
-  const [includeCapitalLetters, setIncludeCapitalLetters] = useState(true);
-  const [excludeDuplicateChar, setExcludeDuplicateChar] = useState(false);
+  const [includeLetters, setIncludeLetters] = useState(true)
+  const [includeNumbers, setIncludeNumbers] = useState(true)
+  const [includeSpecialChar, setIncludeSpecialChar] = useState(true)
+  const [includeCapitalLetters, setIncludeCapitalLetters] = useState(true)
+  const [excludeDuplicateChar, setExcludeDuplicateChar] = useState(false)
   // const [excludeSimilarChar, setExcludeSimilarChar] = useState(false);
-  const [passwordLength, setPasswordLength] = useState(15);
-  const [passwordEntropy, setPasswordEntropy] = useState(0);
-  const [passwordStrengthLabel, setPasswordStrengthLabel] = useState("weak");
-  const [password, setPassword] = useState("");
-  const [passwordHistory, setPasswordHistory] = useState({});
+  const [passwordLength, setPasswordLength] = useState(15)
+  const [passwordEntropy, setPasswordEntropy] = useState(0)
+  const [passwordStrengthLabel, setPasswordStrengthLabel] = useState('weak')
+  const [password, setPassword] = useState('')
+  const [passwordHistory, setPasswordHistory] = useState({})
 
   const RandomPasswordGenerator = () => {
     const randomFunc = {
-      includeLetters: function getRandomLower() {
-        return String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+      includeLetters: function getRandomLower () {
+        return String.fromCharCode(Math.floor(Math.random() * 26) + 97)
       },
-      includeCapitalLetters: function getRandomUpper() {
-        return String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+      includeCapitalLetters: function getRandomUpper () {
+        return String.fromCharCode(Math.floor(Math.random() * 26) + 65)
       },
-      includeNumbers: function getRandomNumber() {
-        return String.fromCharCode(Math.floor(Math.random() * 10) + 48);
+      includeNumbers: function getRandomNumber () {
+        return String.fromCharCode(Math.floor(Math.random() * 10) + 48)
       },
-      includeSpecialChar: function getRandomSymbol() {
-        const symbols = "!@#$%^&*()+";
-        return symbols[Math.floor(Math.random() * symbols.length)];
-      },
-    };
+      includeSpecialChar: function getRandomSymbol () {
+        const symbols = '!@#$%^&*()+'
+        return symbols[Math.floor(Math.random() * symbols.length)]
+      }
+    }
 
-    let generatedPassword = "";
+    let generatedPassword = ''
 
     const typesCount =
       includeLetters +
       includeCapitalLetters +
       includeNumbers +
-      includeSpecialChar;
+      includeSpecialChar
 
     const typesArr = [
       { includeLetters },
       { includeCapitalLetters },
       { includeNumbers },
-      { includeSpecialChar },
-    ].filter((item) => Object.values(item)[0]);
+      { includeSpecialChar }
+    ].filter((item) => Object.values(item)[0])
 
     if (typesCount === 0) {
-      return "";
+      return ''
     }
 
-    let allowedTypesArray = [];
-    let allowedPattern = [];
+    const allowedTypesArray = []
+    const allowedPattern = []
     typesArr.forEach((type) => {
-      allowedTypesArray.push(Object.keys(type)[0]);
-      allowedPattern[Object.keys(type)[0]] = false;
-    });
+      allowedTypesArray.push(Object.keys(type)[0])
+      allowedPattern[Object.keys(type)[0]] = false
+    })
 
     while (!Object.values(allowedPattern).every(Boolean)) {
-      generatedPassword = "";
+      generatedPassword = ''
       while (passwordLength > generatedPassword.length) {
         const funcName =
           allowedTypesArray[
             Math.floor(Math.random() * allowedTypesArray.length)
-          ];
-        let charToAdd = randomFunc[funcName]();
+          ]
+        let charToAdd = randomFunc[funcName]()
         if (excludeDuplicateChar) {
-          if (generatedPassword.includes(charToAdd)) charToAdd = "";
+          if (generatedPassword.includes(charToAdd)) charToAdd = ''
         }
-        generatedPassword += charToAdd;
-        if (charToAdd !== "" && !allowedPattern[funcName])
-          allowedPattern[funcName] = true;
+        generatedPassword += charToAdd
+        if (charToAdd !== '' && !allowedPattern[funcName]) { allowedPattern[funcName] = true }
       }
     }
-    return generatedPassword.slice(0, passwordLength);
-  };
+    return generatedPassword.slice(0, passwordLength)
+  }
 
   const calcEntropy = (passwordLength) => {
-    const charsetLength = 77;
-    var entropy = Math.round(
+    const charsetLength = 77
+    const entropy = Math.round(
       (passwordLength * Math.log(charsetLength)) / Math.LN2
-    );
-    setPasswordEntropy(entropy);
-  };
+    )
+    setPasswordEntropy(entropy)
+  }
 
   const passwordStrength = (passwordEntropy) => {
-    if (passwordEntropy <= 60) setPasswordStrengthLabel("Very Weak");
-    else if (60 < passwordEntropy && passwordEntropy <= 80)
-      setPasswordStrengthLabel("Weak");
-    else if (80 < passwordEntropy && passwordEntropy <= 100)
-      setPasswordStrengthLabel("Good");
-    else if (passwordEntropy > 100) setPasswordStrengthLabel("Strong");
-    else setPasswordStrengthLabel("Use a Strong Password");
-  };
+    if (passwordEntropy <= 60) setPasswordStrengthLabel('Very Weak')
+    else if (passwordEntropy > 60 && passwordEntropy <= 80) { setPasswordStrengthLabel('Weak') } else if (passwordEntropy > 80 && passwordEntropy <= 100) { setPasswordStrengthLabel('Good') } else if (passwordEntropy > 100) setPasswordStrengthLabel('Strong')
+    else setPasswordStrengthLabel('Use a Strong Password')
+  }
 
   useEffect(() => {
-    calcEntropy(passwordLength);
-  }, [passwordLength]);
+    calcEntropy(passwordLength)
+  }, [passwordLength])
 
   useEffect(() => {
-    passwordStrength(passwordEntropy);
-  }, [passwordEntropy]);
+    passwordStrength(passwordEntropy)
+  }, [passwordEntropy])
 
-  //handle toggles
+  // handle toggles
   const onChangeIncludeCapitalLetters = (e) => {
-    setIncludeCapitalLetters(document.getElementById("uppercase").checked);
-    disableOnlyCheckbox();
-  };
+    setIncludeCapitalLetters(document.getElementById('uppercase').checked)
+    disableOnlyCheckbox()
+  }
   const onChangeIncludeLetters = (e) => {
-    setIncludeLetters(document.getElementById("lowercase").checked);
-    disableOnlyCheckbox();
-  };
+    setIncludeLetters(document.getElementById('lowercase').checked)
+    disableOnlyCheckbox()
+  }
   const onChangeIncludeNumbers = (e) => {
-    setIncludeNumbers(document.getElementById("numbers").checked);
-    disableOnlyCheckbox();
-  };
+    setIncludeNumbers(document.getElementById('numbers').checked)
+    disableOnlyCheckbox()
+  }
   const onChangeIncludeSpecialChar = (e) => {
-    setIncludeSpecialChar(document.getElementById("symbols").checked);
-    disableOnlyCheckbox();
-  };
+    setIncludeSpecialChar(document.getElementById('symbols').checked)
+    disableOnlyCheckbox()
+  }
   const onChangeExcludeDuplicateChar = (e) => {
-    setExcludeDuplicateChar(document.getElementById("duplicateChar").checked);
-    disableOnlyCheckbox();
-  };
+    setExcludeDuplicateChar(document.getElementById('duplicateChar').checked)
+    disableOnlyCheckbox()
+  }
   // const onChangeExcludeSimilarChar = (e) => {
   //   setExcludeSimilarChar(document.getElementById("similarChar").checked);
   //   disableOnlyCheckbox();
   // };
 
   const onChangePasswordLength = (e) => {
-    setPasswordLength(e.target.value);
-    document.getElementById("password-length-span").innerHTML =
-      "Password Length: " + e.target.value;
+    setPasswordLength(e.target.value)
+    document.getElementById('password-length-span').innerHTML =
+      'Password Length: ' + e.target.value
 
-    //dual tone on sliding bar
-    const slider = document.getElementById("range");
+    // dual tone on sliding bar
+    const slider = document.getElementById('range')
     const sliderProps = {
-      fill: "#3FA4F4",
-      background: "rgba(255, 255, 255, 0.214)",
-    };
+      fill: '#3FA4F4',
+      background: 'rgba(255, 255, 255, 0.214)'
+    }
 
     const percentage =
-      (100 * (e.target.value - slider.min)) / (slider.max - slider.min);
+      (100 * (e.target.value - slider.min)) / (slider.max - slider.min)
     const bg = `linear-gradient(90deg, ${sliderProps.fill} ${percentage}%, ${
       sliderProps.background
-    } ${percentage + 0.1}%)`;
-    slider.style.background = bg;
-  };
+    } ${percentage + 0.1}%)`
+    slider.style.background = bg
+  }
 
   // function that handles the checkboxes state, so at least one needs
-  //to be selected.The last checkbox will be disabled.
+  // to be selected.The last checkbox will be disabled.
   const disableOnlyCheckbox = () => {
-    const uppercase = document.getElementById("uppercase");
-    const lowercase = document.getElementById("lowercase");
-    const number = document.getElementById("numbers");
-    const symbol = document.getElementById("symbols");
+    const uppercase = document.getElementById('uppercase')
+    const lowercase = document.getElementById('lowercase')
+    const number = document.getElementById('numbers')
+    const symbol = document.getElementById('symbols')
     const totalChecked = [uppercase, lowercase, number, symbol].filter(
       (el) => el.checked
-    );
+    )
 
     totalChecked.forEach((el) => {
       if (totalChecked.length === 1) {
-        if (el.id === "numbers" || el.id === "symbols") {
-          setExcludeDuplicateChar(false);
-          document.getElementById("duplicateChar").disabled = true;
+        if (el.id === 'numbers' || el.id === 'symbols') {
+          setExcludeDuplicateChar(false)
+          document.getElementById('duplicateChar').disabled = true
         }
-        el.disabled = true;
+        el.disabled = true
       } else {
-        el.disabled = false;
-        document.getElementById("duplicateChar").disabled = false;
+        el.disabled = false
+        document.getElementById('duplicateChar').disabled = false
       }
-    });
-  };
+    })
+  }
 
   const copyToClipboard = (item) => {
     if (!item) {
-      navigator.clipboard.writeText(password);
+      navigator.clipboard.writeText(password)
 
-      const copyInfo = document.querySelector(".info.right");
-      copyInfo.style.transform = "translateY(200%)";
-      copyInfo.style.opacity = "0";
+      const copyInfo = document.querySelector('.info.right')
+      copyInfo.style.transform = 'translateY(200%)'
+      copyInfo.style.opacity = '0'
 
-      const copiedInfo = document.querySelector(".info.left");
-      copiedInfo.style.transform = "translateY(0%)";
-      copiedInfo.style.opacity = "0.75";
+      const copiedInfo = document.querySelector('.info.left')
+      copiedInfo.style.transform = 'translateY(0%)'
+      copiedInfo.style.opacity = '0.75'
     } else {
-      navigator.clipboard.writeText(item);
+      navigator.clipboard.writeText(item)
     }
-  };
+  }
 
   const showOrHide = (item) => {
-    var passwordHistoryCopy = passwordHistory;
+    const passwordHistoryCopy = passwordHistory
     passwordHistoryCopy[item] =
-      passwordHistory[item] === "show" ? "hide" : "show";
-    setPasswordHistory({ ...passwordHistoryCopy });
-  };
+      passwordHistory[item] === 'show' ? 'hide' : 'show'
+    setPasswordHistory({ ...passwordHistoryCopy })
+  }
 
   const deleteItem = (item) => {
-    var passwordHistoryCopy = passwordHistory;
-    delete passwordHistoryCopy[item];
-    setPasswordHistory({ ...passwordHistoryCopy });
-  };
+    const passwordHistoryCopy = passwordHistory
+    delete passwordHistoryCopy[item]
+    setPasswordHistory({ ...passwordHistoryCopy })
+  }
 
   const generatePassword = async (e) => {
-    const generatedPassword = RandomPasswordGenerator();
+    const generatedPassword = RandomPasswordGenerator()
     // console.log(generatedPassword);
-    setPassword(generatedPassword);
-    document.getElementById("result").innerText = generatedPassword;
+    setPassword(generatedPassword)
+    document.getElementById('result').innerText = generatedPassword
 
     setPasswordHistory({
       ...passwordHistory,
-      [generatedPassword]: "hide",
-    });
+      [generatedPassword]: 'hide'
+    })
 
-    //Tooltips for copy action and copied
-    const copyInfo = document.querySelector(".info.right");
-    copyInfo.style.transform = "translateY(0%)";
-    copyInfo.style.opacity = "0.75";
+    // Tooltips for copy action and copied
+    const copyInfo = document.querySelector('.info.right')
+    copyInfo.style.transform = 'translateY(0%)'
+    copyInfo.style.opacity = '0.75'
 
-    const copiedInfo = document.querySelector(".info.left");
-    copiedInfo.style.transform = "translateY(200%)";
-    copiedInfo.style.opacity = "0";
-  };
+    const copiedInfo = document.querySelector('.info.left')
+    copiedInfo.style.transform = 'translateY(200%)'
+    copiedInfo.style.opacity = '0'
+  }
 
   return (
-    <div className="container">
-      <div className="password">
-        <h2 className="title">Password Generator</h2>
-        <div className="gen-password">
-          <div className="result">
-            <div className="info right" onClick={() => copyToClipboard()}>
+    <div className='container'>
+      <div className='password'>
+        <h2 className='title'>Password Generator</h2>
+        <div className='gen-password'>
+          <div className='result'>
+            <div className='info right' onClick={() => copyToClipboard()}>
               click to copy
             </div>
-            <div className="info left">copied</div>
-            <div className="viewbox" id="result">
+            <div className='info left'>copied</div>
+            <div className='viewbox' id='result'>
               CLICK GENERATE
             </div>
           </div>
           <div>
             <input
-              type="button"
-              className="btn generate"
-              value="Generate"
+              type='button'
+              className='btn generate'
+              value='Generate'
               onClick={generatePassword}
             />
           </div>
         </div>
-        <div className="password-info">
+        <div className='password-info'>
           {/* <div */}
-          <span id="password-length-span" className="field-title">
+          <span id='password-length-span' className='field-title'>
             Password Length: 15
           </span>
-          <span id="password-entropy-span" className="field-title entropy">
+          <span id='password-entropy-span' className='field-title entropy'>
             Entropy: {passwordEntropy}
           </span>
           <span
-            id="password-strengthLabel-span"
-            className="field-title strength-label"
+            id='password-strengthLabel-span'
+            className='field-title strength-label'
           >
             Strength: {passwordStrengthLabel}
           </span>
-          <div className="password-length-slider">
+          <div className='password-length-slider'>
             <b>8</b>
             <input
-              id="range"
-              className="range"
-              type="range"
+              id='range'
+              className='range'
+              type='range'
               value={passwordLength}
               onChange={onChangePasswordLength}
-              min="8"
-              max="25"
+              min='8'
+              max='25'
             />
             <b>25</b>
           </div>
         </div>
-        <div className="settings">
-          <span className="field-title">Settings</span>
-          <div className="setting">
+        <div className='settings'>
+          <span className='field-title'>Settings</span>
+          <div className='setting'>
             <label>Use Capital letters</label>
             <input
-              type="checkbox"
-              id="uppercase"
+              type='checkbox'
+              id='uppercase'
               value={includeCapitalLetters}
               checked={includeCapitalLetters}
               onChange={onChangeIncludeCapitalLetters}
             />
           </div>
-          <div className="setting">
+          <div className='setting'>
             <label>Use letters</label>
             <input
-              type="checkbox"
-              id="lowercase"
+              type='checkbox'
+              id='lowercase'
               value={includeLetters}
               checked={includeLetters}
               onChange={onChangeIncludeLetters}
             />
           </div>
-          <div className="setting">
+          <div className='setting'>
             <label>Use numbers</label>
             <input
-              type="checkbox"
-              id="numbers"
+              type='checkbox'
+              id='numbers'
               value={includeNumbers}
               onChange={onChangeIncludeNumbers}
               checked={includeNumbers}
             />
           </div>
-          <div className="setting">
+          <div className='setting'>
             <label>Use Special Characters</label>
             <input
-              type="checkbox"
-              id="symbols"
+              type='checkbox'
+              id='symbols'
               onChange={onChangeIncludeSpecialChar}
               value={includeSpecialChar}
               checked={includeSpecialChar}
             />
           </div>
-          <div className="setting">
+          <div className='setting'>
             <label>Exclude Duplicate Characters</label>
             <input
-              type="checkbox"
-              id="duplicateChar"
+              type='checkbox'
+              id='duplicateChar'
               onChange={onChangeExcludeDuplicateChar}
               value={excludeDuplicateChar}
               checked={excludeDuplicateChar}
@@ -339,39 +334,39 @@ const PasswordGenerator = (props) => {
           </div> */}
         </div>
       </div>
-      <div className="password-history">
-        <h2 className="title">Password History</h2>
+      <div className='password-history'>
+        <h2 className='title'>Password History</h2>
         {Object.keys(passwordHistory).length !== 0 && (
-          <span className="tooltip" data-tooltip="Delete All History">
+          <span className='tooltip' data-tooltip='Delete All History'>
             <b
-              className="emoji-dustbin"
+              className='emoji-dustbin'
               onClick={() => {
-                setPasswordHistory({});
+                setPasswordHistory({})
               }}
-            ></b>
+            />
           </span>
         )}
         <table>
           <tbody>
             {Object.entries(passwordHistory).map(([key, value]) => (
               <tr key={key}>
-                <td className="td-password">
-                  {value === "show" ? key : "*********"}
+                <td className='td-password'>
+                  {value === 'show' ? key : '*********'}
                 </td>
-                <span className="tooltip" data-tooltip="Show/Hide">
-                  <td className={value} onClick={() => showOrHide(key)}></td>
+                <span className='tooltip' data-tooltip='Show/Hide'>
+                  <td className={value} onClick={() => showOrHide(key)} />
                 </span>
-                <span className="tooltip" data-tooltip="Click to Copy">
+                <span className='tooltip' data-tooltip='Click to Copy'>
                   <td
-                    className="emoji-clipboard"
+                    className='emoji-clipboard'
                     onClick={() => copyToClipboard(key)}
-                  ></td>
+                  />
                 </span>
-                <span className="tooltip" data-tooltip="Delete">
+                <span className='tooltip' data-tooltip='Delete'>
                   <td
-                    className="emoji-dustbin"
+                    className='emoji-dustbin'
                     onClick={() => deleteItem(key)}
-                  ></td>
+                  />
                 </span>
               </tr>
             ))}
@@ -379,7 +374,7 @@ const PasswordGenerator = (props) => {
         </table>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PasswordGenerator;
+export default PasswordGenerator
