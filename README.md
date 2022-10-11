@@ -39,9 +39,8 @@ $ npm run build // this will compile the react code using webpack and generate a
 $ npm run start // this will run the files in docs, this behavior is exactly the same how gh-pages will run your static site
 ```
 
-# Project Demo GIF
-
-[![Demo Gif Here](https://i.postimg.cc/VvqBBntk/20221010-004704.gif)](https://passwordnest.netlify.app/)
+# Project Demo Video
+https://user-images.githubusercontent.com/22301528/195102904-2e43d1b8-9729-4f22-a369-c3965f32b49a.mp4
 
 ## Standard
 
