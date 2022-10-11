@@ -40,7 +40,7 @@ $ npm run start // this will run the files in docs, this behavior is exactly the
 ```
 
 # Project Demo Video
-https://user-images.githubusercontent.com/22301528/195102904-2e43d1b8-9729-4f22-a369-c3965f32b49a.mp4
+<https://user-images.githubusercontent.com/22301528/195102904-2e43d1b8-9729-4f22-a369-c3965f32b49a.mp4>
 
 ## Standard
 
